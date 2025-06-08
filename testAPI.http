@@ -1,0 +1,28 @@
+### sign up
+POST http://localhost:3000/api/users/signup
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "phuong",
+  "email": "phuong@gmail.com",
+  "password": "12345678"
+}
+
+###
+
+### sign in
+POST http://localhost:3000/api/users/signin
+Content-Type: application/json
+
+{
+  "email": "quy@gmail.com",
+  "password": "12345678"
+}
+
+### get profile
+
+GET http://localhost:3000/api/users/profile
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MzY5MGQ1NWEwODUzNDZhN2IwNzc2YSIsImVtYWlsIjoicXV5QGdtYWlsLmNvbSIsImlhdCI6MTc0ODQwNzYzMiwiZXhwIjoxNzQ4NDk0MDMyfQ.NK5bkVPFSKSksCzLW9EPTWHRYKtpDoF2RUDCa3t_Kl4
