@@ -5,6 +5,74 @@ const fs = require("fs");
 const path = require("path");
 
 class userControllers {
+  handleGoogleLogin = async (profile) => {
+    try {
+      let user;
+      if (profile.type === "google") {
+        user = await User.findOne({ googleId: profile.id });
+        if (!user) {
+          user = await User.create({
+            googleId: profile.id,
+            name: profile.displayName,
+            email: profile.emails[0].value,
+            avatar: profile.photos[0].value,
+          });
+        }
+      } else if (profile.type === "facebook") {
+        user = await User.findOne({ facebookId: profile.id });
+        if (!user) {
+          user = await User.create({
+            facebookId: profile.id,
+            email: "",
+            name: profile.displayName,
+            avatar: "",
+          });
+        }
+      }
+
+      return { user, error: null };
+    } catch (error) {
+      return { user: null, error };
+    }
+  };
+
+  loginToken = async (req, res) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.error("Unauthorized", 401);
+    }
+    const { type } = req.query;
+    const token = authHeader.split(" ")[1];
+
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      let user;
+      if (type === "google") {
+        user = await User.findOne({ googleId: decoded.id });
+      } else if (type === "facebook") {
+        user = await User.findOne({ facebookId: decoded.id });
+      }
+
+      if (!user) return res.error("User not found", 404);
+
+      const data = {
+        userId: user._id,
+        email: user?.email,
+        avatar: user?.avatar,
+        name: user?.name,
+      };
+
+      if(type === "facebook"){
+        data.avatar = user.avatar
+        ? `${req.protocol}://${req.get("host")}/public/avatars/${user.avatar}`
+        : null;
+      }
+      res.success(data, "verify success");
+    } catch (error) {
+      res.status(401).json({ error: "Invalid token" });
+    }
+  };
+
   signUp = async (req, res) => {
     try {
       const user = await User.create(req.body);
@@ -59,7 +127,7 @@ class userControllers {
 
   update = async (req, res) => {
     try {
-      const userId = req.user.id;
+      const userId = req.body.id;
       const user = await User.findById(userId);
       if (!user) return res.status(404).json({ message: "User not found" });
 
