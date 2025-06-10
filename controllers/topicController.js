@@ -3,14 +3,13 @@ const { Types } = require("mongoose");
 
 class topicControllers {
   async create(req, res) {
-    const { name, isSystem, createBy } = req.body;
+    const { name, isSystem } = req.body;
 
     try {
       const newTopic = {
         name: name,
         isSystemTopic: isSystem,
-        createBy: isSystem ? null : createBy,
-        createAt: Date.now,
+        createAt: Date.now(),
       };
 
       const topic = await Topic.create(newTopic);
@@ -50,8 +49,58 @@ class topicControllers {
           },
         },
         {
+          $lookup: {
+            from: "userstatuses",
+            let: { topicId: "$_id" },
+            pipeline: [ 
+              {
+                $lookup: {
+                  from: "vocabularies",
+                  localField: "vocabId",
+                  foreignField: "_id",
+                  as: "vocab",
+                },
+              },
+              {
+                $unwind: "$vocab",
+              },
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      { $eq: ["$userId", userObjectId] },
+                      { $gte: ["$status", 1] },
+                      { $lte: ["$nextReminder", new Date()] },
+                    ],
+                  },
+                },
+              },
+              {
+                $group: {
+                  _id: "$vocab.topicId",
+                  count: { $sum: 1 },
+                },
+              },
+            ],
+            as: "overdueStatus",
+          },
+        },
+        {
+          $addFields: {
+            status: {
+              $gt: [
+                {
+                  $ifNull: [{ $arrayElemAt: ["$overdueStatus.count", 0] }, 0],
+                },
+                9,
+              ],
+            },
+          },
+        },
+        {
           $project: {
             vocabularies: 0,
+            overdueStatus: 0,
           },
         },
       ]);

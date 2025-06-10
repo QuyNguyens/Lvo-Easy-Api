@@ -4,11 +4,13 @@ const vocabControllers = require("../controllers/vocabController");
 const verifyToken = require("../middleWare/authMiddleWare");
 
 router.post("/create", verifyToken, vocabControllers.create);
-router.get("/topic", verifyToken, vocabControllers.getPagination);
+router.post("/system-create", verifyToken, vocabControllers.systemCreate);
+router.get("/topic", verifyToken, vocabControllers.getWordsToReview);
 router.get(
   "/topic/system",
   verifyToken,
   vocabControllers.getSystemVocabByTopic
 );
+router.get("/vocab-learn", verifyToken, vocabControllers.getWordsToLearn);
 
 module.exports = router;

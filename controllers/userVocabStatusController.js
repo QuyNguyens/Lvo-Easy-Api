@@ -1,7 +1,7 @@
 const userVocab = require("../models/userVocabStatus");
 
 class UserVocabStatusControllers {
-  async createOrUpdate(req, res) {
+  async   createOrUpdate(req, res) {
     const { userId, vocabId, status } = req.body;
 
     if (!userId || !vocabId) {
@@ -18,13 +18,14 @@ class UserVocabStatusControllers {
 
       if (existing) {
         existing.status = status;
-        existing.lastStudied = Date.now;
+        const now = new Date();
+        existing.lastStudied = now;
         existing.nextReminder = new Date(
           now.getTime() + 3 * 24 * 60 * 60 * 1000
         );
 
         await existing.save();
-      } else {
+      } else {    
         await userVocab.create(vocabData);
       }
       return res.success();
