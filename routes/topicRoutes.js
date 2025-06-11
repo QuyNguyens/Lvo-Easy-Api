@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const verifyToken = require("../middleWare/authMiddleware");
+const verifyToken = require("../middleware/authMiddleware");
 const topicControllers = require("../controllers/topicController");
 
 router.get("/all", verifyToken, topicControllers.getAllTopics);

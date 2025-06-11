@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const vocabControllers = require("../controllers/vocabController");
-const verifyToken = require("../middleWare/authMiddleware");
+const verifyToken = require("../middleware/authMiddleware");
 
 router.post("/create", verifyToken, vocabControllers.create);
 router.post("/system-create", verifyToken, vocabControllers.systemCreate);
