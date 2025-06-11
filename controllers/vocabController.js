@@ -55,7 +55,7 @@ class VocabControllers {
   }
 
   async getWordsToReview(req, res) {
-    const { topicId, isSystemVocab, userId } = req.query;
+    const { topicId, isSystemVocab, userId, limit = 10 } = req.query;
 
     try {
       const vocab = await Vocab.aggregate([
@@ -90,7 +90,7 @@ class VocabControllers {
           },
         },
         {
-          $limit: 10,
+          $limit: parseInt(limit),
         },
         {
           $project: {
@@ -116,7 +116,7 @@ class VocabControllers {
   }
 
   async getWordsToLearn(req, res) {
-    const { topicId, userId, limit = 10 } = req.query;
+    const { topicId, userId, limit = 5 } = req.query;
 
     if (!topicId || !userId) {
       return res.error("Missing topicId or userId", 400);

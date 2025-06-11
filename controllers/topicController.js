@@ -28,6 +28,7 @@ class topicControllers {
       const userObjectId = Types.ObjectId.isValid(userId)
         ? new Types.ObjectId(userId)
         : userId;
+
       const topics = await Topic.aggregate([
         {
           $match: {
@@ -51,8 +52,8 @@ class topicControllers {
         {
           $lookup: {
             from: "userstatuses",
-            let: { topicId: "$_id" },
-            pipeline: [ 
+            let: { topicId: "$_id", userId: userObjectId },
+            pipeline: [
               {
                 $lookup: {
                   from: "vocabularies",
@@ -61,15 +62,13 @@ class topicControllers {
                   as: "vocab",
                 },
               },
-              {
-                $unwind: "$vocab",
-              },
+              { $unwind: "$vocab" },
               {
                 $match: {
                   $expr: {
                     $and: [
-                      { $eq: ["$userId", userObjectId] },
-                      { $gte: ["$status", 1] },
+                      { $eq: ["$userId", "$$userId"] },
+                      { $eq: ["$vocab.topicId", "$$topicId"] },
                       { $lte: ["$nextReminder", new Date()] },
                     ],
                   },
@@ -89,10 +88,8 @@ class topicControllers {
           $addFields: {
             status: {
               $gt: [
-                {
-                  $ifNull: [{ $arrayElemAt: ["$overdueStatus.count", 0] }, 0],
-                },
-                9,
+                { $ifNull: [{ $arrayElemAt: ["$overdueStatus.count", 0] }, 0] },
+                5,
               ],
             },
           },

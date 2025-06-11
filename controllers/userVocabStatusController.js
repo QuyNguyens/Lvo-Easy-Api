@@ -2,7 +2,7 @@ const userVocab = require("../models/userVocabStatus");
 
 class UserVocabStatusControllers {
   async   createOrUpdate(req, res) {
-    const { userId, vocabId, status } = req.body;
+    const { userId, vocabId, status, remindTime = 3 } = req.body;
 
     if (!userId || !vocabId) {
       return res.error("require req data!!!", 404);
@@ -21,8 +21,8 @@ class UserVocabStatusControllers {
         const now = new Date();
         existing.lastStudied = now;
         existing.nextReminder = new Date(
-          now.getTime() + 3 * 24 * 60 * 60 * 1000
-        );
+          now.getTime() + parseInt(remindTime) * 24 * 60 * 60 * 1000
+      );
 
         await existing.save();
       } else {    
