@@ -129,7 +129,13 @@ class userControllers {
     try {
       const userId = req.body.id;
       const user = await User.findById(userId);
-      if (!user) return res.status(404).json({ message: "User not found" });
+      if (!user) return res.error("User not found",404);
+
+      if(req.body.email){
+        const existingEmail = await User.findOne({email: req.body.email});
+        if(existingEmail) return res.success("Email is existing",409);
+        user.email = req.body.email;
+      }
 
       if (req.file) {
         if (user.avatar) {
@@ -147,7 +153,7 @@ class userControllers {
 
         user.avatar = req.file.filename;
       }
-
+      
       if (req.body.name) {
         user.name = req.body.name;
       }
