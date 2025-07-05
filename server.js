@@ -33,7 +33,7 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use(cors());
+    app.use(cors());
 app.use(express.json());
 app.use(responseMiddleWare);
 
@@ -79,6 +79,10 @@ passport.use(
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((user, done) => done(null, user));
 
+//call render server
+app.get("/api/wake", (req, res) =>{
+    return res.json({message: "ok"});
+});
 app.get("/auth/google", passport.authenticate("google", {
     scope: ["profile", "email"]
 }));
